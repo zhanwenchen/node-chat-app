@@ -12,33 +12,26 @@ var io = socketIO(server);
 app.use(express.static(publicPath));
 
 io.on('connection', (socket) => {
-  console.log('New user connected');
+    console.log('New user connected');
 
-  socket.emit('newEmail', {
-    from: 'zhanwenchen@berners-lee',
-    text: 'Hey. Wanna work on the research paper together?',
-    createdTimestamp: Date.now(),
-  });
+    socket.on('createEmail', (newEmail) => {
+        console.log('createEmail', newEmail);
+    });
+    
+    socket.on('createMessage', (message) => {
+        console.log('createMessage ', message);
+        io.emit('newMessage', {
+            from: message.from,
+            text: message.text,
+            createdTimestamp: new Date().getTime(),
+        })
+    });
 
-  socket.on('createEmail', (newEmail) => {
-    console.log('createEmail', newEmail);
-  });
-
-  socket.emit('newMessage', {
-    from: 'sender',
-    text: 'hey let\'s meet up at 6?',
-    createdTimestamp: Date.now(),
-  })
-
-  socket.on('createMessage', (message) => {
-    console.log('createMessage ', message);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
-  })
+    socket.on('disconnect', () => {
+        console.log('User disconnected');
+    })
 });
 
-server.listen(port, function () {
-  console.log(`Server started on ${port}`);
+server.listen(port, () => {
+    console.log(`Server started on ${port}`);
 });
